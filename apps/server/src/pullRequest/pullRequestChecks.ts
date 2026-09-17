@@ -53,11 +53,9 @@ export function dedupeChecks(
       ? { ...entry.check, name: `${workflowName} / ${entry.check.name}` }
       : entry.check;
   });
-  const failing = checks.filter(
-    (check) => check.status === "failure" || check.status === "cancelled",
-  );
-  return [
-    ...failing,
-    ...checks.filter((check) => check.status !== "failure" && check.status !== "cancelled"),
-  ];
+  return checks.toSorted((left, right) => {
+    const leftFailed = left.status === "failure" || left.status === "cancelled";
+    const rightFailed = right.status === "failure" || right.status === "cancelled";
+    return Number(rightFailed) - Number(leftFailed);
+  });
 }
